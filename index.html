@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus Gallery Pro</title>
+<link rel="icon" type="image/x-icon" href="hmdev.jpeg">
+  <style>
+        body {
+           
+            cursor: url('https://cur.cursors-4u.net/cursors/cur-2/cur103.cur'), auto; 
+        }
+    </style>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-user-select: none; user-select: none; }
+
+:root {
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --border: #e2e8f0;
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --primary: #3b82f6;
+  --error: #ef4444;
+  --warning: #f59e0b;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* 18+ Screen Protection */
+body.protect-18plus {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+body.protect-18plus.gallery-grid {
+  filter: blur(0);
+  transition: filter 0.3s ease;
+}
+
+body.protect-18plus.devtools-open.gallery-grid {
+  filter: blur(20px);
+}
+
+/* Loading Screen */
+#loadingScreen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 30px;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+#loadingScreen.hide {
+  opacity: 0;
+  transform: scale(0.95);
+  pointer-events: none;
+}
+
+.loading-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #dbeafe 0%, #f0f9ff 50%, #ede9fe 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 8s ease infinite;
+  opacity: 0.6;
+}
+
+@keyframes gradientShift {
+ 0%, 100% { background-position: 0% 50%; }
+ 50% { background-position: 100% 50%; }
+}
+
+.loading-logo {
+  font-size: 32px;
+  font-weight: 700;
+  background: linear-gradient(90deg, var(--primary) 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: pulse 2s ease-in-out infinite;
+  z-index: 1;
+}
+
+@keyframes pulse {
+ 0%, 100% { transform: scale(1); }
+ 50% { transform: scale(1.05); }
+}
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 1;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Password Screens */
+.password-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 9998;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.password-screen.show {
+  display: flex;
+  opacity: 1;
+}
+
+.password-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 50px 40px;
+  width: 90%;
+  max-width: 420px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  animation: cardSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+}
+
+@keyframes cardSlideIn {
+  from { transform: translateY(40px) scale(0.95); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.lock-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  animation: float 3s ease-in-out infinite;
+}
+
+.lock-icon.warning {
+  background: linear-gradient(135deg, var(--warning) 0%, #f97316 100%);
+}
+
+@keyframes float {
+ 0%, 100% { transform: translateY(0); }
+ 50% { transform: translateY(-8px); }
+}
+
+.password-input {
+  width: 100%;
+  padding: 16px 20px;
+  background: #f8fafc;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  font-size: 18px;
+  text-align: center;
+  letter-spacing: 4px;
+  transition: all 0.3s ease;
+  margin-bottom: 16px;
+}
+
+.password-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  transform: translateY(-2px);
+}
+
+.password-input.error {
+  border-color: var(--error);
+  animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+ 0%, 100% { transform: translateX(0); }
+ 25% { transform: translateX(-10px); }
+ 75% { transform: translateX(10px); }
+}
+
+.unlock-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+  border: none;
+  border-radius: 14px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.unlock-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(59, 130, 246, 0.3);
+}
+
+.error-msg {
+  color: var(--error);
+  font-size: 13px;
+  margin-top: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.error-msg.show {
+  opacity: 1;
+}
+
+/* Main Gallery */
+#galleryApp {
+  display: none;
+  height: 100vh;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  overflow-y: auto;
+}
+
+#galleryApp.show {
+  display: block;
+  opacity: 1;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 5%;
+}
+
+.header-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: 700;
+  background: linear-gradient(90deg, var(--primary) 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Search Bar */
+.search-wrapper {
+  flex: 1;
+  max-width: 350px;
+  position: relative;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 20px 12px 45px;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: #fff;
+}
+
+.search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.action-btn {
+  width: 40px;
+  height: 40px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.action-btn:hover:not(:disabled) {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.logout-btn {
+  padding: 10px 20px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: #fef2f2;
+  border-color: var(--error);
+  color: var(--error);
+  transform: translateY(-2px);
+}
+
+/* Categories */
+.categories {
+  max-width: 1400px;
+  margin: 30px auto 0;
+  padding: 0 5%;
+  display: flex;
+  gap: 12px;
+}
+
+.cat-btn {
+  padding: 12px 24px;
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cat-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.cat-btn.active {
+  background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+.cat-btn.locked {
+  border-color: var(--warning);
+  color: var(--warning);
+}
+
+/* Gallery Grid */
+.container {
+  max-width: 1400px;
+  margin: 30px auto;
+  padding: 0 5% 60px;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.photo-card {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  aspect-ratio: 4/3;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  animation: cardFadeIn 0.6s ease both;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes cardFadeIn {
+  from { transform: translateY(30px) scale(0.95); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.photo-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+}
+
+.photo-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+  pointer-events: none;
+}
+
+.photo-card:hover img {
+  transform: scale(1.1);
+}
+
+.photo-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.photo-card:hover.photo-overlay {
+  opacity: 1;
+}
+
+.photo-info {
+  flex: 1;
+}
+
+.photo-title {
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+  transform: translateY(10px);
+  transition: transform 0.3s ease;
+}
+
+.photo-card:hover.photo-title {
+  transform: translateY(0);
+}
+
+/* Download Button - Safe only */
+.download-btn {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  transform: translateY(10px);
+  opacity: 0;
+}
+
+.photo-card:hover.download-btn {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.download-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.badge-18plus {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--warning);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Lightbox */
+#lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#lightbox.show {
+  display: flex;
+  opacity: 1;
+}
+
+.lightbox-img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 16px;
+  animation: zoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+@keyframes zoomIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.lightbox-actions {
+  position: absolute;
+  bottom: 30px;
+  display: flex;
+  gap: 12px;
+}
+
+.lightbox-btn {
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.lightbox-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-3px);
+}
+
+.lightbox-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.close-btn {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: rotate(90deg) scale(1.1);
+}
+
+/* No results */
+.no-results {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text-muted);
+  grid-column: 1/-1;
+}
+
+@media (max-width: 768px) {
+.gallery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+.header-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+.search-wrapper {
+    max-width: 100%;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="loadingScreen">
+  <div class="loading-bg"></div>
+  <div class="loading-logo">Nexus Gallery Pro</div>
+  <div class="loading-spinner"></div>
+</div>
+
+<!-- Main Password Screen -->
+<div id="mainPasswordScreen" class="password-screen">
+  <div class="password-card">
+    <div class="lock-icon">
+      <i data-lucide="lock"></i>
+    </div>
+    <div style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">Enter Password</div>
+    <div style="color: var(--text-muted); font-size: 14px; margin-bottom: 30px;">Gallery Access</div>
+    <input type="password" class="password-input" id="mainPasswordInput" placeholder="••••" maxlength="8">
+    <button class="unlock-btn" onclick="checkMainPassword()">Unlock Gallery</button>
+    <div class="error-msg" id="mainErrorMsg">Incorrect password</div>
+  </div>
+</div>
+
+<!-- 18+ Password Screen -->
+<div id="adultPasswordScreen" class="password-screen">
+  <div class="password-card">
+    <div class="lock-icon warning">
+      <i data-lucide="shield-alert"></i>
+    </div>
+    <div style="font-size: 24px; font-weight: 700; margin-bottom: 8px; color: var(--warning);">Admin Only</div>
+    <div style="color: var(--text-muted); font-size: 14px; margin-bottom: 30px;">Age restricted content. Enter password to continue</div>
+    <input type="password" class="password-input" id="adultPasswordInput" placeholder="••••••">
+    <button class="unlock-btn" style="background: linear-gradient(135deg, var(--warning) 0%, #f97316 100%);" onclick="checkAdultPassword()">Access Admin Gallery</button>
+    <div class="error-msg" id="adultErrorMsg">Incorrect password</div>
+  </div>
+</div>
+
+<!-- Main Gallery App -->
+<div id="galleryApp">
+  <header>
+    <div class="header-content">
+      <div class="logo">Nexus Gallery Pro</div>
+
+      <div class="search-wrapper">
+        <i data-lucide="search" class="search-icon"></i>
+        <input type="text" class="search-input" id="searchInput" placeholder="Search photos..." oninput="searchPhotos()">
+      </div>
+
+      <div class="action-buttons">
+        <button class="action-btn" id="undoBtn" onclick="undoAction()" title="Undo">
+          <i data-lucide="undo"></i>
+        </button>
+        <button class="action-btn" id="redoBtn" onclick="redoAction()" title="Redo">
+          <i data-lucide="redo"></i>
+        </button>
+        <button class="logout-btn" onclick="logout()">
+          <i data-lucide="log-out"></i>
+          Lock
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Categories -->
+  <div class="categories">
+    <button class="cat-btn active" data-cat="safe" onclick="switchCategory('safe', this)">
+      <i data-lucide="image"></i>
+      18 Under
+    </button>
+    <button class="cat-btn locked" id="adultCatBtn" data-cat="18plus" onclick="openAdultCategory()">
+      <i data-lucide="lock"></i>
+      Admin Only
+    </button>
+  </div>
+
+  <div class="container">
+    <div class="gallery-grid" id="galleryGrid"></div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox" onclick="closeLightbox(event)">
+  <img class="lightbox-img" id="lightboxImg" src="" alt="">
+  <div class="lightbox-actions" id="lightboxActions"></div>
+  <button class="close-btn" onclick="closeLightbox(event)">
+    <i data-lucide="x"></i>
+  </button>
+</div>
+
+<script>
+lucide.createIcons();
+
+const MAIN_PASSWORD = '20789351';
+const ADULT_PASSWORD = '12H87j';
+
+let currentCategory = 'safe';
+let isAdultUnlocked = false;
+let allPhotos = [];
+let filteredPhotos = [];
+let currentSearch = '';
+let currentLightboxPhoto = null;
+
+// UNDO/REDO HISTORY
+let history = [];
+let historyIndex = -1;
+
+const photos = [
+  { url: 'nexuslogo.png', title: 'Nexus Gallery Pro', category: 'safe' },
+  { url: '1.jpeg', title: 'Oruthota Road', category: 'safe' },
+  { url: '2.jpeg', title: 'Mithila bro 01', category: 'safe' },
+  { url: '3.jpeg', title: 'Malika 01', category: 'safe' },
+  { url: '4.jpeg', title: 'Lake', category: 'safe' },
+  { url: '5.jpeg', title: 'Sadun Bro', category: 'safe' },
+  { url: '6.jpeg', title: 'Mithila bro 02', category: 'safe' },
+  { url: '7.jpeg', title: 'Mithila bro 03', category: 'safe' },
+  { url: '8.jpeg', title: 'Temple', category: 'safe' },
+  { url: '9.jpeg', title: 'Malika Bro 02', category: 'safe' },
+  //admin only photos
+  { url: '10.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '11.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '12.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '13.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '14.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '15.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '16.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '17.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '18.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '19.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '20.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '21.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '22.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '23.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '24.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '25.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '26.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '27.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '28.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '29.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '30.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '31.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '32.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '33.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '34.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '35.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '36.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '37.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '38.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '39.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '40.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '41.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '42.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '43.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '44.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '45.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '46.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '47.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '48.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '49.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '50.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '51.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '52.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '53.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '54.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '55.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '56.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '57.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '58.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '59.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '60.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '61.jpeg', title: 'Miaz', category: '18plus' },
+  { url: '62.jpeg', title: 'Miaz', category: '18plus' }
+];
+
+// Save state to history
+function saveToHistory() {
+  const state = {
+    category: currentCategory,
+    search: currentSearch
+  };
+
+  history = history.slice(0, historyIndex + 1);
+  history.push(state);
+  historyIndex++;
+
+  updateUndoRedoButtons();
+}
+
+function updateUndoRedoButtons() {
+  document.getElementById('undoBtn').disabled = historyIndex <= 0;
+  document.getElementById('redoBtn').disabled = historyIndex >= history.length - 1;
+}
+
+function undoAction() {
+  if (historyIndex > 0) {
+    historyIndex--;
+    const state = history[historyIndex];
+    applyState(state, false);
+    updateUndoRedoButtons();
+  }
+}
+
+function redoAction() {
+  if (historyIndex < history.length - 1) {
+    historyIndex++;
+    const state = history[historyIndex];
+    applyState(state, false);
+    updateUndoRedoButtons();
+  }
+}
+
+function applyState(state, save = true) {
+  currentCategory = state.category;
+  currentSearch = state.search;
+
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.cat === state.category) {
+      btn.classList.add('active');
+    }
+  });
+
+  document.getElementById('searchInput').value = state.search;
+
+  loadCategory(state.category, save);
+}
+
+// Screenshot protection for 18+
+function enableProtection() {
+  document.body.classList.add('protect-18plus');
+
+  // Block right click
+  document.addEventListener('contextmenu', blockAction);
+
+  // Block PrintScreen, Ctrl+S, Ctrl+P
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'PrintScreen' ||
+        (e.ctrlKey && (e.key === 's' || e.key === 'p' || e.key === 'u')) ||
+        e.key === 'F12') {
+      e.preventDefault();
+      alert('Screenshot/Save disabled for 18+ content');
+      return false;
+    }
+  });
+}
+
+function disableProtection() {
+  document.body.classList.remove('protect-18plus');
+  document.removeEventListener('contextmenu', blockAction);
+}
+
+function blockAction(e) {
+  if (currentCategory === '18plus') {
+    e.preventDefault();
+    return false;
+  }
+}
+
+// DevTools detection
+let devtools = { open: false };
+setInterval(() => {
+  if (window.outerHeight - window.innerHeight > 200 || window.outerWidth - window.innerWidth > 200) {
+    if (!devtools.open && currentCategory === '18plus') {
+      devtools.open = true;
+      document.body.classList.add('devtools-open');
+    }
+  } else {
+    devtools.open = false;
+    document.body.classList.remove('devtools-open');
+  }
+}, 500);
+
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loadingScreen').classList.add('hide');
+    setTimeout(() => {
+      document.getElementById('mainPasswordScreen').classList.add('show');
+      lucide.createIcons();
+    }, 600);
+  }, 2000);
+});
+
+document.getElementById('mainPasswordInput').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') checkMainPassword();
+});
+
+document.getElementById('adultPasswordInput').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') checkAdultPassword();
+});
+
+function checkMainPassword() {
+  const input = document.getElementById('mainPasswordInput');
+  const errorMsg = document.getElementById('mainErrorMsg');
+
+  if (input.value.trim() === MAIN_PASSWORD) {
+    input.classList.remove('error');
+    errorMsg.classList.remove('show');
+
+    document.getElementById('mainPasswordScreen').style.opacity = '0';
+    setTimeout(() => {
+      document.getElementById('mainPasswordScreen').style.display = 'none';
+      document.getElementById('galleryApp').classList.add('show');
+      loadCategory('safe');
+      saveToHistory();
+    }, 500);
+  } else {
+    input.classList.add('error');
+    errorMsg.classList.add('show');
+    input.value = '';
+    setTimeout(() => input.classList.remove('error'), 500);
+  }
+}
+
+function openAdultCategory() {
+  if (isAdultUnlocked) {
+    switchCategory('18plus', document.getElementById('adultCatBtn'));
+    return;
+  }
+  document.getElementById('adultPasswordScreen').classList.add('show');
+}
+
+function checkAdultPassword() {
+  const input = document.getElementById('adultPasswordInput');
+  const errorMsg = document.getElementById('adultErrorMsg');
+  const adultBtn = document.getElementById('adultCatBtn');
+
+  if (input.value.trim() === ADULT_PASSWORD) {
+    input.classList.remove('error');
+    errorMsg.classList.remove('show');
+
+    isAdultUnlocked = true;
+    sessionStorage.setItem('hmGalleryAdult', 'true');
+
+    document.getElementById('adultPasswordScreen').classList.remove('show');
+    adultBtn.classList.remove('locked');
+    adultBtn.innerHTML = '<i data-lucide="shield-check"></i> 18+ Content';
+    lucide.createIcons();
+
+    switchCategory('18plus', adultBtn);
+  } else {
+    input.classList.add('error');
+    errorMsg.classList.add('show');
+    input.value = '';
+    setTimeout(() => input.classList.remove('error'), 500);
+  }
+}
+
+function loadCategory(cat, saveHistory = true) {
+  currentCategory = cat;
+
+  if (cat === 'safe') {
+    allPhotos = photos.filter(p => p.category === 'safe');
+    disableProtection();
+  } else if (cat === '18plus' && isAdultUnlocked) {
+    allPhotos = photos.filter(p => p.category === '18plus');
+    enableProtection();
+  } else {
+    allPhotos = [];
+  }
+
+  if (saveHistory) {
+    currentSearch = '';
+    document.getElementById('searchInput').value = '';
+    saveToHistory();
+  }
+
+  searchPhotos(false);
+  document.getElementById('galleryApp').scrollTop = 0;
+}
+
+function switchCategory(cat, btnElement) {
+  if (cat === '18plus' &&!isAdultUnlocked) {
+    openAdultCategory();
+    return;
+  }
+
+  document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+  if (btnElement) btnElement.classList.add('active');
+
+  loadCategory(cat);
+}
+
+function searchPhotos(saveHistory = true) {
+  currentSearch = document.getElementById('searchInput').value.toLowerCase().trim();
+
+  if (!currentSearch) {
+    filteredPhotos = [];
+  } else {
+    filteredPhotos = allPhotos.filter(p => p.title.toLowerCase().includes(currentSearch));
+  }
+
+  renderGallery();
+
+  if (saveHistory) {
+    saveToHistory();
+  }
+}
+
+function renderGallery() {
+  const grid = document.getElementById('galleryGrid');
+  const displayPhotos = filteredPhotos.length > 0? filteredPhotos : allPhotos;
+
+  if (displayPhotos.length === 0) {
+    grid.innerHTML = `
+      <div class="no-results">
+        <i data-lucide="search-x" style="width: 60px; height: 60px; margin: 0 auto 20px; color: var(--text-muted);"></i>
+        <p>No photos found</p>
+      </div>
+    `;
+    lucide.createIcons();
+    return;
+  }
+
+  grid.innerHTML = displayPhotos.map((photo, index) => `
+    <div class="photo-card" style="animation-delay: ${index * 0.08}s" onclick="openLightbox('${photo.url}', '${photo.category}')">
+      <img src="${photo.url}" alt="${photo.title}" loading="lazy">
+      ${photo.category === '18plus'? '<div class="badge-18plus">18+</div>' : ''}
+      <div class="photo-overlay">
+        <div class="photo-info">
+          <div class="photo-title">${photo.title}</div>
+        </div>
+        ${photo.category === 'safe'? `
+        <button class="download-btn" onclick="event.stopPropagation(); downloadImage('${photo.url}', '${photo.title}')">
+          <i data-lucide="download"></i>
+        </button>
+        ` : ''}
+      </div>
+    </div>
+  `).join('');
+
+  lucide.createIcons();
+}
+
+function openLightbox(imgUrl, category) {
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  const actions = document.getElementById('lightboxActions');
+
+  currentLightboxPhoto = { url: imgUrl, category: category };
+
+  lightboxImg.src = imgUrl;
+  lightbox.classList.add('show');
+  document.body.style.overflow = 'hidden';
+
+  // Download button only for safe photos
+  if (category === 'safe') {
+    actions.innerHTML = `
+      <button class="lightbox-btn" onclick="downloadImage('${imgUrl}', 'downloaded-image')">
+        <i data-lucide="download"></i>
+        Download
+      </button>
+    `;
+  } else {
+    actions.innerHTML = `
+      <button class="lightbox-btn" disabled>
+        <i data-lucide="lock"></i>
+        Download Disabled
+      </button>
+    `;
+  }
+  lucide.createIcons();
+}
+
+function downloadImage(url, filename) {
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename + '.jpg';
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function closeLightbox(event) {
+  if (event.target.id === 'lightbox' || event.target.closest('.close-btn')) {
+    document.getElementById('lightbox').classList.remove('show');
+    document.body.style.overflow = 'auto';
+    currentLightboxPhoto = null;
+  }
+}
+
+function logout() {
+  sessionStorage.clear();
+  isAdultUnlocked = false;
+  currentCategory = 'safe';
+  history = [];
+  historyIndex = -1;
+  disableProtection();
+
+  document.getElementById('galleryApp').classList.remove('show');
+  document.getElementById('mainPasswordInput').value = '';
+  document.getElementById('adultPasswordInput').value = '';
+
+  const adultBtn = document.getElementById('adultCatBtn');
+  adultBtn.classList.add('locked');
+  adultBtn.innerHTML = '<i data-lucide="lock"></i> 18+ Content';
+
+  setTimeout(() => {
+    document.getElementById('mainPasswordScreen').classList.add('show');
+    lucide.createIcons();
+  }, 300);
+}
+</script>
+
+</body>
+</html>
